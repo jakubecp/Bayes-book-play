@@ -1,3 +1,8 @@
+rm(list = ls())
+library(devtools)
+library(arm)
+library(checkpoint)
+checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE, auto.install.knitr = TRUE)
 #bayes play
 ## Fitting a linear regression
 n <- 50
@@ -16,9 +21,8 @@ mod
 summary(mod)$sigma
 
 #drawing conclusions
-library(arm)
-nsim <- 1000
-bsim <- sim(mod, n.sim=nsim)
+nsim <- 10000
+bsim <- arm::sim(mod, n.sim=nsim)
 apply (coef(bsim), 2, quantile, prob=c(0.025,0.975))
 quantile (bsim@sigma, prob = c(0.025,0.975))
 sum(coef(bsim)[,2]>1)/nsim
