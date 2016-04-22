@@ -11,6 +11,7 @@ checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE,
 
 ## Bayes play
 ## Fitting a linear regression
+rm(list = ls())
 n <- 50
 # set.seed(500) #in case you need same result every time
 sigma <-  5
@@ -55,7 +56,7 @@ lines (newdat$x, apply(newy,1,quantile, prob=0.975), lty=3)
 
 
 ##One-Way ANOVA
-
+rm(list = ls())
 mu <- 12
 sigma <- 2
 b1 <- 3
@@ -125,7 +126,7 @@ hist(coef(bsim2), breaks=100)
 #follow the guidlines of Geldman and Hill (2007)
 
 ## Analysis of Covariance (ANCOVA)
-
+rm(list = ls())
 data (ellenberg)
 index <- is.element (ellenberg$Species, c("Ap", "Dg"))
 dat <- ellenberg[index,]
@@ -135,3 +136,20 @@ str(dat)
 mod <- lm (log(Yi.g)~Species+Water, data=dat)
 
 head(model.matrix(mod))
+
+summary(mod)
+
+mod2 <- lm(log(Yi.g)~Species*Water, data=dat)
+
+summary(mod2)
+
+#simulation
+nsim <- 2000
+bsim <- sim(mod2,n.sim=nsim)
+xatcross <- blmeco::crosspoint (coef(bsim)[,1], coef(bsim)[,3], coef(bsim)[,1]+coef(bsim)[,2], coef(bsim)[,3]+coef(bsim)[,4])[,1]
+xatcross[xatcross<(-5)] <- -5
+th <- hist(xatcross, breaks=seq(-5.5,140.5,by=5))
+plot(th$mids,cumsum(th$counts)/nsim, type="l",lwd=2, las=1,
+     ylim=c(0,1), ylab="P(Dg>Ap | data", xlab="Average distatnce to ground water(cm)")
+
+## Multiple Regression and Collinearity
