@@ -3,6 +3,7 @@ rm(list = ls())
 library(devtools)
 library(arm)
 library(blmeco) #data for periparusater
+library(ggplot2)
 library(checkpoint)
 #Checkpoint
 checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE, 
@@ -80,7 +81,7 @@ hist (coef(bsim),breaks= 100)
 data(periparusater)
 dat <- periparusater
 
-#model
+#model without interactions
 mod <- lm(wing~sex+age, data=dat)
 mod
 summary(mod)$sigma
@@ -97,6 +98,7 @@ for (i in 1:nsim) fitmat[,i] <- xmat%*% bsim@coef[i,]
 newdat$lower <- apply (fitmat, 1, quantile, prob = 0.025)
 newdat$upper <- apply (fitmat, 1, quantile, prob = 0.975)
 
+#model with interactions
 mod2 <- lm(wing~sex*age, data=dat) #alternative writing wing~sex+age+sex:age or wing~(sex+age)^2
 
 bsim2 <- sim(mod2, n.sim=nsim)
@@ -115,4 +117,21 @@ quantile (bsim2@coef[,2]+bsim2@coef[,4], prob=c(0.025,0.5,0.975))
 sum(bsim2@coef[,2]<0)/nsim #difference of wing length between sexes for juveniles
 sum(bsim2@coef[,2]+bsim2@coef[,4]<0)/nsim #difference of wing length between sexes for adults
 
+hist(coef(bsim2), breaks=100)
+#use ggplot2 to do the same and colour the factors
+
 ## Multiple comparisons nad Post Hoc tests
+
+#follow the guidlines of Geldman and Hill (2007)
+
+## Analysis of Covariance (ANCOVA)
+
+data (ellenberg)
+index <- is.element (ellenberg$Species, c("Ap", "Dg"))
+dat <- ellenberg[index,]
+dat <- droplevels(dat)
+str(dat)
+
+mod <- lm (log(Yi.g)~Species+Water, data=dat)
+
+head(model.matrix(mod))
