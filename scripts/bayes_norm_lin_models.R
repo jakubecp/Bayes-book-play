@@ -28,7 +28,7 @@ mod
 summary(mod)$sigma
 
 #drawing conclusions
-nsim <- 100000
+nsim <- 50000
 bsim <- arm::sim(mod, n.sim=nsim)
 apply (coef(bsim), 2, quantile, prob=c(0.025,0.975))
 quantile (bsim@sigma, prob = c(0.025,0.975))
@@ -153,3 +153,17 @@ plot(th$mids,cumsum(th$counts)/nsim, type="l",lwd=2, las=1,
      ylim=c(0,1), ylab="P(Dg>Ap | data", xlab="Average distatnce to ground water(cm)")
 
 ## Multiple Regression and Collinearity
+rm(list = ls())
+data(mdat)
+mod <- lm(y~x1+x2,data=mdat)
+summary(mod)
+cor(mdat[,2:6])
+
+own.graph <- function(x,y) {
+  points(x,y,pch=16,col=rgb(1,0.5,0,0.8))
+  abline(lm(y~x))
+}
+pairs(mdat,panel=own.graph)
+
+##Ordered Factors and Contrasts
+
