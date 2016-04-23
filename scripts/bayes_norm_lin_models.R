@@ -1,13 +1,14 @@
 rm(list = ls())
+#Checkpoint
+checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE, 
+  auto.install.knitr = TRUE)
+
 #packages 
 library(devtools)
 library(arm)
 library(blmeco) #data for periparusater
 library(ggplot2)
 library(checkpoint)
-#Checkpoint
-checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE, 
-            auto.install.knitr = TRUE)
 
 ## Bayes play
 ## Fitting a linear regression
@@ -28,7 +29,7 @@ mod
 summary(mod)$sigma
 
 #drawing conclusions
-nsim <- 50000
+nsim <- 5000
 bsim <- arm::sim(mod, n.sim=nsim)
 apply (coef(bsim), 2, quantile, prob=c(0.025,0.975))
 quantile (bsim@sigma, prob = c(0.025,0.975))
