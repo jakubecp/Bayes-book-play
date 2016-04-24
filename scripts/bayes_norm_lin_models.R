@@ -168,4 +168,30 @@ own.graph <- function(x,y) {
 pairs(mdat,panel=own.graph)
 
 ##Ordered Factors and Contrasts
+rm(list = ls())
+data("swallows")
+levels(swallows$nesting_aid)
+contrasts(swallows$nesting_aid)
 
+swallows$nesting_aid <- factor(swallows$nesting_aid,levels=c("none", "support","artif_nest", "both"), ordered=TRUE)
+levels(swallows$nesting_aid)
+contrasts(swallows$nesting_aid)
+
+## Quadratic and Hiher Polznomial Terms
+rm(list = ls())
+data (ellenberg)
+index <- is.element (ellenberg$Species, c("Ap", "Dg"))
+dat <- ellenberg[index,]
+dat <- droplevels(dat)
+str(dat)
+
+mod <- lm(log(Yi.g)~ Water + I(Water^2), data=dat[dat$Species=="Ap",])
+
+t.poly <- poly(dat$Water,2)
+dat$Water.1 <- t.poly[,1]
+dat$Water.q <- t.poly[,2]
+mod2 <- lm(log(Yi.g)~Water.1+Water.q,data=dat)
+
+newdat <- data.frame(Water=seq(0,130))
+newdat$Water.1 <- predict(t.poly,newdat$Water)[,1]
+newdat$Water.q <- predict(t.poly,newdat$Water)[,2]
