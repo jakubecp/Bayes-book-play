@@ -1,5 +1,5 @@
 ##Likelihood(Chapter 5)
-
+rm(list = ls())
 dnorm(x=0.8, mean=1,sd=0.2)*dnorm(x=1.2,mean=1,sd=0.2)*dnorm(x=1.1,mean=1,sd=0.2)
 
 dnorm(x=0.8, mean=1.2,sd=0.4)*dnorm(x=1.2, mean=1.2,sd=0.4)*dnorm(x=1.1, mean=1.2,sd=0.4)
