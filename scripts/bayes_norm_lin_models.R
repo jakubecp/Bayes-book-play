@@ -1,5 +1,6 @@
 rm(list = ls())
 #Checkpoint
+library(checkpoint)
 checkpoint (snapshotDate = "2016-04-01", use.knitr = TRUE, 
   auto.install.knitr = TRUE)
 
@@ -8,7 +9,7 @@ library(devtools)
 library(arm)
 library(blmeco) #data for periparusater
 library(ggplot2)
-library(checkpoint)
+
 
 ## Bayes play
 ## Fitting a linear regression
