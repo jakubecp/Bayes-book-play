@@ -10,6 +10,8 @@ library(arm)
 library(blmeco) #data for periparusater
 library(ggplot2)
 library(nlme)
+library(sp)
+library(gstat)
 
 ##Assessing Model Assumptions (Chapter 6)
 data(periparusater)
@@ -58,3 +60,23 @@ frogs$waterarea.sqrt.l.z <- scale(frogs$waterarea.sqrt.l)
 mod <- MASS::glm.nb (count2~elevation.z+year.z+fish+vegetation+waterarea.sqrt.l.z+fish:vegetation,data=frogs)
 par (mfrow=c(2,2))
 plot(mod)
+
+
+spdata <- data.frame(resid=resid(mod),x=frogs$x,y=frogs$y)
+coordinates (spdata) <- c("x","y")
+sp::bubble(spdata,"resid", col=c("blue","orange"), main="Residuals", xlab="X-coordinates", ylab="Y-coordinates")
+
+
+vario.mod <- gstat::variogram(resid(mod)~1,spdata)
+plot(vario.mod)
+
+vario.mod.6dir <- gstat::variogram(resid(mod)~1,spdata,alpha=seq(0,150,by=30))
+plot(vario.mod.6dir)
+
+#Heteroscedasticity
+data(ellenberg)
+dat <- ellenberg[complete.cases(ellenberg[c("Yi.g","Water","Species")]),]
+mod <- lm(log(Yi.g)~Water+Species+Water:Species,dat)
+par(mfrow=c(1,2))
+plot(resid(mod)~Species,dat)
+scatter.smooth(dat$Water,sqrt(abs(resid(mod))), xlab="Water")
