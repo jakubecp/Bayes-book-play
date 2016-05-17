@@ -39,13 +39,51 @@ bsim <- sim(mod,n.sim=nsim)
 str(bsim)
 round(apply(bsim@fixef,2, quantile,prob=c(0.025,0.5,0.975)),3)
 
-newdat <- expand.grid(Implant=factor(c("C","P"),
-                                     levels=levels(dat$Implant)),
-                      days=factor(c(1,3,21),levels=levels(dat$days)))
+# newdat <- data.frame (x=seq(10,30,0.1))
+# newmodmat <- model.matrix (~x,data=newdat)
+# fitmat <- matrix (ncol=nsim,nrow=nrow(newdat))
+# for (i in 1:nsim) fitmat[,i] <- newmodmat %*% coef(bsim)[i,]
+# plot(x,y)
+# abline(mod,lwd=2)
+# lines (newdat$x, apply(fitmat,1,quantile, prob=0.025), lty=3)
+# lines (newdat$x, apply(fitmat,1,quantile, prob=0.975), lty=3)
+
+newdat <- expand.grid(Implant=levels(dat$Implant),
+  days=levels(dat$days))
 Xmat <- model.matrix(~Implant+days+Implant:days,data=newdat)
 fitmat <- matrix(ncol=nsim,nrow=nrow(newdat))
-#SOME PROBLEM FROM HERE DOWN
-for(i in 1:nsim) fitmat[,i] <- Xmat%*%bsim@fixef[i,]
+for (i in 1:nsim) fitmat[,i] <- Xmat%*%bsim@fixef[i,]
 newdat$lower <- apply(fitmat,1,quantile,prob=0.025)
 newdat$upper <- apply(fitmat,1,quantile,prob=0.975)
 newdat$fit <- Xmat %*%fixef(mod)
+
+#MAKE A Plot of newdat$lower + upper + fit + data
+
+#Random intercept and Random slope
+rm(list = ls())
+data (wingbowl)
+dat <- wingbowl
+dat$Age.z <- scale (dat$Age)
+mod <- lmer(Wing~Age.z+Implant+Age.z:Implant+(Age.z|Ring), data=dat, REML=FALSE)
+mod
+qqnorm(lme4::ranef(mod)$Ring[,1], main="normal QQ-plot, random effects")
+qqline(lme4::ranef(mod)$Ring[,1])
+
+qqnorm(lme4::ranef(mod)$Ring[,2], main="normal QQ-plot, random effects")
+qqline(lme4::ranef(mod)$Ring[,2])
+
+nsim <- 2000
+bsim <- sim(mod,n.sim=nsim)
+apply(bsim@fixef,2, quantile, prob=c(0.025,0.975))
+quantile(bsim@fixef[,"Age.z:ImplantP"]/sd(dat$Age), prob=c(0.025,0.975))
+
+newdat <- expand.grid(Age=seq(23,45,length=100),
+  Implant=levels(dat$Implant))
+newdat
+newdat$Age.z <- (newdat$Age-mean(dat$Age))/sd(dat$Age)
+Xmat <- model.matrix(~Age.z+Implant+Age.z:Implant,data=newdat)
+fitmat <- matrix(ncol=nsim,nrow=nrow(newdat))
+for (i in 1:nsim) fitmat[,i] <- Xmat%*%bsim@fixef[i,]
+newdat$lower <- apply (fitmat,1, quantile, prob=0.025)
+newdat$upper <- apply(fitmat,1,quantile, prob=0.975)
+
